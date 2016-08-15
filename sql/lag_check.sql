@@ -23,13 +23,17 @@ WITH data_lag AS (
         ) AS s 
     ),
 pg_lag AS (
-	select
+    SELECT
+        client_addr,
         application_name,
-        pg_size_pretty(pg_xlog_location_diff(pg_current_xlog_location(), replay_location)) as diff
-    from
+        pg_size_pretty(pg_xlog_location_diff(sent_location, write_location)) AS network_delay,
+        pg_size_pretty(pg_xlog_location_diff(write_location, flush_location)) AS slave_write,
+        pg_size_pretty(pg_xlog_location_diff(flush_location, replay_location)) AS slave_replay,
+        pg_size_pretty(pg_xlog_location_diff(pg_current_xlog_location(), replay_location)) AS total_delay
+    FROM
         pg_stat_replication
 ),
 time_lag AS (
-	select now() - pg_last_xact_replay_timestamp() as replication_delay
+	SELECT now() - pg_last_xact_replay_timestamp() AS slave_time_delay
 )
-SELECT * from pg_lag;
+SELECT * FROM pg_lag;
