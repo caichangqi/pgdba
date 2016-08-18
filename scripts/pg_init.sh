@@ -143,17 +143,17 @@ pg_install() {
 }
 
 # ##########################################################
-# install package of postgresql for zhaopin
+# install package of postgresql for custom
 # args:
 #    arg 1: postgresql version
 # ##########################################################
-pg_install_zhaopin() {
+pg_install_custom() {
 	if (( "$#" == 1 )); then
 		local dbversion="$1"; shift
 		local major_version="${dbversion:0:3}"
 		local short_version="$(echo $dbversion \
 		     | awk -F'.' '{print $1$2}')"
-		local rpm_base='http://download.zpidc.com/packages/RPMS/'
+		local rpm_base='http://download.postgresql.com/packages/RPMS/'
 		local os_release=''
 
 		if ( grep -q 'CentOS release 6' /etc/redhat-release ); then
@@ -313,7 +313,7 @@ main() {
 	user_init "$superuser"
 	dir_init "$superuser" "$dbbase"
 
-	pg_install_zhaopin "$db_version"
+	pg_install_custom"$db_version"
 	pg_conf_init "$superuser" "$dbbase" "$short_version"
 
 	if (( "$initflag" == "1" )); then
