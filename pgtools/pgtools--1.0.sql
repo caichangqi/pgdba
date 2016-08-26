@@ -599,17 +599,17 @@ bloat_data AS (
         schemaname as schema_name, tablename as table_name, can_estimate, 
         table_bytes, round(table_bytes/(1024^2)::NUMERIC,3) as table_mb,
         expected_bytes, round(expected_bytes/(1024^2)::NUMERIC,3) as expected_mb,
-        round(bloat_bytes*100/table_bytes) as pct_bloat,
-        round(bloat_bytes/(1024::NUMERIC^2),2) as mb_bloat,
+        round(bloat_bytes*100/table_bytes) as bloat_pct,
+        round(bloat_bytes/(1024::NUMERIC^2),2) as bloat_mb,
         est_rows
     FROM table_estimates_plus
 )
-SELECT database_name, schema_name, table_name, pct_bloat, mb_bloat, table_mb, can_estimate, est_rows
+SELECT database_name, schema_name, table_name, bloat_pct, bloat_mb, table_mb, can_estimate, est_rows
 FROM bloat_data
-ORDER BY pct_bloat DESC
+ORDER BY bloat_pct DESC
 );
-COMMENT ON COLUMN bloat_tables.pct_bloat IS 'bloat percent of table';
-COMMENT ON COLUMN bloat_tables.mb_bloat IS 'bloat size of table';
+COMMENT ON COLUMN bloat_tables.bloat_pct IS 'bloat percent of table';
+COMMENT ON COLUMN bloat_tables.bloat_mb IS 'bloat size of table';
 COMMENT ON COLUMN bloat_tables.table_mb IS 'table size';
 COMMENT ON COLUMN bloat_tables.est_rows IS 'rows estimated';
 
@@ -648,7 +648,7 @@ index_item_sizes AS (
     END AS index_tuple_hdr,
     sum( (1-coalesce(pg_stats.null_frac, 0)) * coalesce(pg_stats.avg_width, 1024) ) AS nulldatawidth
     FROM pg_attribute
-    JOIN btree_index_atts AS ind_atts ON pg_attribute.attrelid = ind_atts.indexrelid AND pg_attribute.attnum = ind_atts.attnum
+    JOIN btree_index_atts AS ind_atts ON pg_attribute.attrelid = ind_atts.indexrelid -- AND pg_attribute.attnum = ind_atts.attnum
     JOIN pg_stats ON pg_stats.schemaname = ind_atts.nspname
           -- stats for regular index columns
           AND ( (pg_stats.tablename = ind_atts.tablename AND pg_stats.attname = pg_catalog.pg_get_indexdef(pg_attribute.attrelid, pg_attribute.attnum, TRUE)) 
