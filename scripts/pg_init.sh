@@ -34,8 +34,8 @@ usage() {
 	    -h, --help                  usage of this program
 
 	Example:
-	    $PROGNAME -P test -V 9.5.2
-	    $PROGNAME -U dbsu -P test -I -V 9.5.2
+	    $PROGNAME -P test -V 9.5.4
+	    $PROGNAME -U dbsu -P test -I -V 9.5.4
 
 	EOF
 }
@@ -89,7 +89,7 @@ dir_init() {
 		local dbsu="$1"; shift
 		local datadir="$1"; shift
 
-		mkdir -p "$datadir"/{data,backup,rbackup,arclog,tablespace,log,conf,scripts}
+		mkdir -p "$datadir"/{data,backup,rbackup,arxclog,conf,scripts}
 		chown -R "$dbsu":"$dbsu" "$datadir"
 		chmod 0700 "$datadir"/data
 
@@ -121,20 +121,12 @@ pg_install() {
 		    os_release="rhel7"
 		fi
 
-		yum install -y tcl perl-ExtUtils-Embed libxml2 libxslt uuid readline
+		yum install -q -y tcl perl-ExtUtils-Embed libxml2 libxslt uuid readline
+        yum install -q -y "$rpm_base"/pgdg-centos"$short_version"-"$major_version"-1.noarch.rpm
 
-		if ( ! rpm -q postgresql"$short_version"-libs-"$dbversion"-1PGDG."$os_release"."$(uname -m)" &> /dev/null ); then
-		    rpm -ivh "$rpm_base"/postgresql"$short_version"-libs-"$dbversion"-1PGDG."$os_release"."$(uname -m)".rpm
-		fi
-		if ( ! rpm -q postgresql"$short_version"-"$dbversion"-1PGDG."$os_release"."$(uname -m)" &> /dev/null ); then
-		    rpm -ivh "$rpm_base"/postgresql"$short_version"-"$dbversion"-1PGDG."$os_release"."$(uname -m)".rpm
-		fi
-		if ( ! rpm -q postgresql"$short_version"-server-"$dbversion"-1PGDG."$os_release"."$(uname -m)" &> /dev/null ); then
-		    rpm -ivh "$rpm_base"/postgresql"$short_version"-server-"$dbversion"-1PGDG."$os_release"."$(uname -m)".rpm
-		fi
-		if ( ! rpm -q postgresql"$short_version"-contrib-"$dbversion"-1PGDG."$os_release"."$(uname -m)" &> /dev/null ); then
-		    rpm -ivh "$rpm_base"/postgresql"$short_version"-contrib-"$dbversion"-1PGDG."$os_release"."$(uname -m)".rpm
-		fi
+        yum install -q -y postgresql"$short_version" postgresql"$short_version"-libs postgresql"$short_version"-server postgresql"$short_version"-contrib postgresql"$short_version"-devel
+
+        yum install -q -y pg_top"$short_version" postgis2_"$short_version" postgis2_"$short_version"-client pg_repack"$short_version"
 
 		rm -f /usr/pgsql
 		ln -sf /usr/pgsql-"$major_version" /opt/pgsql
@@ -163,7 +155,7 @@ pg_install_custom() {
 		fi
 
 		if ( ! rpm -q postgresql-"$dbversion"-1."$os_release"."$(uname -m)" &> /dev/null ); then
-		    yum install -y tcl perl-ExtUtils-Embed libxml2 libxslt uuid readline
+		    yum install -q -y tcl perl-ExtUtils-Embed libxml2 libxslt uuid readline
 		    rpm -ivh --force "$rpm_base"/"$(uname -m)"/postgresql-"$dbversion"-1."$os_release"."$(uname -m)".rpm
 		fi
 	fi
@@ -174,7 +166,7 @@ pg_install_custom() {
 # args:
 #    arg 1: postgresql base directory
 # ##########################################################
-optimize_kernel() {
+optimize() {
 	if (( "$#" == 1 )); then
 		local datadir="$1"; shift
 		local mem="$(free \
@@ -182,15 +174,30 @@ optimize_kernel() {
 		local swap="$(free \
 		     | awk '/Swap:/{print $2}')"
 
-		cat > "$datadir"/conf/sysctl.conf <<- EOF
+		cat >> /etc/sysctl.conf <<- EOF
 		# Database kernel optimization
 		vm.swappiness = 0
 		vm.overcommit_memory = 2
 		vm.overcommit_ratio = $(( ( $mem - $swap ) * 100 / $mem ))
 		vm.zone_reclaim_mode = 0
-		#vm.dirty_background_ratio = 10
-		#vm.dirty_ratio = 20
+        net.core.somaxconn = 62144
 		EOF
+
+        echo never > /sys/kernel/mm/transparent_hugepage/enabled
+        echo never > /sys/kernel/mm/transparent_hugepage/defrag
+
+        cat > /etc/security/limits.d/postgres_nofile.conf <<- EOF
+        postgres hard nofile 102400
+        postgres soft nofile 102400
+        EOF
+        cat > /etc/security/limits.d/pgbouncer_nofile.conf <<- EOF
+        pgbouncer hard nofile 102400
+        pgbouncer soft nofile 102400
+        EOF
+        cat > /etc/security/limits.d/pgpool_nofile.conf <<- EOF
+        pgpool hard nofile 102400
+        pgpool soft nofile 102400
+        EOF
 	fi
 }
 
@@ -207,12 +214,12 @@ pg_conf_init() {
 		local datadir="$1"; shift
 		local short_version="$1"; shift
 
-		wget -q -c http://172.30.200.20/conf/postgresql/pg"$short_version".conf -O "$datadir"/conf/postgresql.conf
+		wget -q -c https://raw.githubusercontent.com/panwenhang/pgdba/master/conf/pg"$short_version".conf -O "$datadir"/conf/postgresql.conf
 
 		cat > "$datadir"/conf/pg_hba.conf <<- EOF
 		host     all               $dbsu		0.0.0.0/0       reject
-		host     sqldba            monitor		0.0.0.0/0	reject
-		local    all               all					md5
+		host     sqldba            monitor		0.0.0.0/0	    reject
+		local    all               all					        md5
 		host     replication       all			0.0.0.0/0       md5
 		host     all               all			0.0.0.0/0       md5
 		EOF
@@ -254,7 +261,7 @@ pg_initdb() {
 main() {
 	local product_name='test'
 	local dbtype='postgresql'
-	local db_version='9.5.2'
+	local db_version='9.5.4'
 	local major_version='9.5'
 	local short_version='95'
 	local superuser='postgres'
@@ -313,14 +320,14 @@ main() {
 	user_init "$superuser"
 	dir_init "$superuser" "$dbbase"
 
-	pg_install_custom"$db_version"
+	pg_install "$db_version"
 	pg_conf_init "$superuser" "$dbbase" "$short_version"
 
 	if (( "$initflag" == "1" )); then
 	    pg_initdb "$dbbase" "$superuser"
 	fi
 
-	optimize_kernel "$dbbase"
+	optimize "$dbbase"
 }
 
 main "$@"

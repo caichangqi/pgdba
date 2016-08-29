@@ -15,10 +15,10 @@ declare -x -r PITR_BIN='/opt/omnipitr/bin'
 declare -x -r PITR_DIR='/data/omnipitr'
 declare -x -r PGBIN='/opt/pgsql/bin'
 
-# the directory for the example is $path/postgresql/{data,backup,rbackup,arclog,scripts}
+# the directory for the example is $path/postgresql/{data,backup,rbackup,arcxlog,scripts}
 # current script in $path/postgresql/scripts
 declare -x -r PGDATA="$PROGDIR/../data"
-declare -x -r XLOG_ARCHIVE="$PROGDIR/../arclog"
+declare -x -r XLOG_ARCHIVE="$PROGDIR/../arcxlog"
 declare -x -r BACKUP_LOCAL="$PROGDIR/../backup"
 declare -x -r BACKUP_REMOTE="$PROGDIR/../rbackup"
 
@@ -189,7 +189,7 @@ pgbasebackup() {
 
 	mkdir -p "$backup_dir"
 	
-	"$PGBIN"/pg_basebackup -h 127.0.0.1 -U "$MASTER_USER" -p "$MASTER_PORT" -x -F p -P -D "$backup_dir" &> "$backup_dir"/../pg_basebackup_"$today".log 
+	"$PGBIN"/pg_basebackup -h 127.0.0.1 -U "$MASTER_USER" -p "$MASTER_PORT" -Xs -Fp -P -D "$backup_dir" &> "$backup_dir"/../pg_basebackup_"$today".log 
 	
 	if (( $? != 0 )); then
 	    "$PGBIN"/psql -h "$MASTER_HOST" -U "$MASTER_USER" -d template1 -A -t -c 'select pg_stop_backup();'
