@@ -89,7 +89,7 @@ dir_init() {
 		local dbsu="$1"; shift
 		local datadir="$1"; shift
 
-		mkdir -p "$datadir"/{data,backup,rbackup,arxclog,conf,scripts}
+		mkdir -p "$datadir"/{data,backup,rbackup,arcxlog,conf,scripts}
 		chown -R "$dbsu":"$dbsu" "$datadir"
 		chmod 0700 "$datadir"/data
 
@@ -229,8 +229,8 @@ pg_conf_init() {
 		cat > "$datadir"/conf/recovery.conf <<- EOF
 		standby_mode = 'on'
 		primary_conninfo = 'host=localhost port=5432 user=postgres password=password application_name=$(hostname)'
-		###restore_command = '/bin/cp -n $datadir/arclog/%f %p'
-		###restore_command = '/usr/bin/test -f $datadir/arclog/\$(date +%Y%m%d)/%f.zip && unzip -o $datadir/arclog/\$(date +%Y%m%d)/%f.zip'
+		###restore_command = '/bin/cp -n $datadir/arcxlog/%f %p'
+		###restore_command = '/usr/bin/test -f $datadir/arcxlog/\$(date +%Y%m%d)/%f.zip && unzip -o $datadir/arcxlog/\$(date +%Y%m%d)/%f.zip'
 		recovery_target_timeline = 'latest'
 		EOF
 
