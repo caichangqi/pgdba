@@ -185,8 +185,9 @@ optimize() {
 			EOF
 		fi
 
-		echo never > /sys/kernel/mm/transparent_hugepage/enabled
-		echo never > /sys/kernel/mm/transparent_hugepage/defrag
+		grubby --update-kernel=/boot/vmlinuz-$(uname -r) --args="numa=off transparent_hugepage=never"
+		echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
+		echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
 
 		cat > /etc/security/limits.d/postgres_nofile.conf <<- EOF
 		postgres hard nofile 102400
