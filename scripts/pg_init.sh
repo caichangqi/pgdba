@@ -256,7 +256,6 @@ pg_initdb() {
 		su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/postgresql.conf $datadir/data/postgresql.conf"
 		su - "$dbsu" sh -c "/bin/cp -a $datadir/data/pg_hba.conf $datadir/data/pg_hba.conf.bak"
 		su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/pg_hba.conf $datadir/data/pg_hba.conf"
-		su - "$dbsu" sh -c "/bin/ln -sf $datadir/log $datadir/data/pg_log"
 	fi
 }
 
