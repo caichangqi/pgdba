@@ -199,6 +199,24 @@ pgbasebackup() {
 	fi
 }
 
+
+# ##########################################################
+# compress backup file
+# ##########################################################
+compress_backup() {
+	local today="$(date +%Y%m%d)"
+	local backup_dir="$BACKUP_LOCAL/$today"
+
+	cd $BACKUP_LOCAL
+	if [[ -d "$today" ]]; then
+	    tar zcf "$today".tar.gz "$today"
+	fi
+
+	if [[ -f "$backup_dir".tar.gz ]]; then
+	    rm -fr "$today"
+	fi
+}
+
 # ##########################################################
 # send backup file to remote server
 # ##########################################################
@@ -207,16 +225,10 @@ send_to_remote() {
 	local backup_dir="$BACKUP_LOCAL/$today"
 	local remote_dir="$BACKUP_REMOTE"
 
-	cd $BACKUP_LOCAL
-	if [[ -d "$today" ]]; then
-		tar zcf "$today".tar.gz $today
-	fi
 	if ( ! cp -r "$backup_dir".tar.gz "$remote_dir" ); then
 	    echo "send backup to remote server error" \
 	        | mail -s "[PostgreSQL] $(hostname) backup failed" "$ERROR_MAIL"
 	    exit 1
-	else
-	    rm -f "$backup_dir".tar.gz
 	fi
 }
 
@@ -299,6 +311,7 @@ main() {
 	    keepdays=-1
 	fi
 
+	compress_backup
 	send_to_remote
 	clean_old "$keepdays" "$BACKUP_LOCAL"
 }
