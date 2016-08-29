@@ -59,15 +59,15 @@ user_init() {
 	if (( "$#" == 1 )); then
 		local dbsu="$1"; shift
 
-		if ( ! grep "$dbsu" /etc/group &>/dev/null ); then
+		if ( ! grep -q "$dbsu" /etc/group ); then
 		    groupadd "$dbsu"
 		fi
 
-		if ( ! id "$dbsu" &>/dev/null ); then
+		if ( ! grep -q "$dbsu" /etc/passwd ); then
 		    useradd -d "$HOME"/"$dbsu" -g "$dbsu" "$dbsu"
 		fi
 
-		if ( id "$dbsu" &>/dev/null ) && ( ! grep -q "$dbsu" /etc/sudoers ); then
+		if ( ! grep -q "$dbsu" /etc/passwd ) && ( ! grep -q "$dbsu" /etc/sudoers ); then
 		    chmod u+w /etc/sudoers
 		    echo "$dbsu          ALL=(ALL)         NOPASSWD: ALL" >> /etc/sudoers
 		fi
@@ -154,7 +154,7 @@ pg_install_custom() {
 		    os_release="el7"
 		fi
 
-		if ( ! rpm -q postgresql-"$dbversion"-1."$os_release"."$(uname -m)" &> /dev/null ); then
+		if ( ! rpm --quiet -q postgresql-"$dbversion"-1."$os_release"."$(uname -m)" ); then
 		    yum install -q -y tcl perl-ExtUtils-Embed libxml2 libxslt uuid readline
 		    rpm -ivh --force "$rpm_base"/"$(uname -m)"/postgresql-"$dbversion"-1."$os_release"."$(uname -m)".rpm
 		fi
@@ -174,30 +174,32 @@ optimize() {
 		local swap="$(free \
 		     | awk '/Swap:/{print $2}')"
 
-		cat >> /etc/sysctl.conf <<- EOF
-		# Database kernel optimization
-		vm.swappiness = 0
-		vm.overcommit_memory = 2
-		vm.overcommit_ratio = $(( ( $mem - $swap ) * 100 / $mem ))
-		vm.zone_reclaim_mode = 0
-        net.core.somaxconn = 62144
+		if ( ! grep -q 'Database kernel optimization' /etc/sysctl.conf ); then
+			cat >> /etc/sysctl.conf <<- EOF
+			# Database kernel optimization
+			vm.swappiness = 0
+			vm.overcommit_memory = 2
+			vm.overcommit_ratio = $(( ( $mem - $swap ) * 100 / $mem ))
+			vm.zone_reclaim_mode = 0
+			net.core.somaxconn = 62144
+			EOF
+		fi
+
+		echo never > /sys/kernel/mm/transparent_hugepage/enabled
+		echo never > /sys/kernel/mm/transparent_hugepage/defrag
+
+		cat > /etc/security/limits.d/postgres_nofile.conf <<- EOF
+		postgres hard nofile 102400
+		postgres soft nofile 102400
 		EOF
-
-        echo never > /sys/kernel/mm/transparent_hugepage/enabled
-        echo never > /sys/kernel/mm/transparent_hugepage/defrag
-
-        cat > /etc/security/limits.d/postgres_nofile.conf <<- EOF
-        postgres hard nofile 102400
-        postgres soft nofile 102400
-        EOF
-        cat > /etc/security/limits.d/pgbouncer_nofile.conf <<- EOF
-        pgbouncer hard nofile 102400
-        pgbouncer soft nofile 102400
-        EOF
-        cat > /etc/security/limits.d/pgpool_nofile.conf <<- EOF
-        pgpool hard nofile 102400
-        pgpool soft nofile 102400
-        EOF
+		cat > /etc/security/limits.d/pgbouncer_nofile.conf <<- EOF
+		pgbouncer hard nofile 102400
+		pgbouncer soft nofile 102400
+		EOF
+		cat > /etc/security/limits.d/pgpool_nofile.conf <<- EOF
+		pgpool hard nofile 102400
+		pgpool soft nofile 102400
+		EOF
 	fi
 }
 
