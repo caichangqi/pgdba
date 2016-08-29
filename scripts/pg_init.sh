@@ -129,7 +129,7 @@ pg_install() {
         yum install -q -y pg_top"$short_version" postgis2_"$short_version" postgis2_"$short_version"-client pg_repack"$short_version"
 
 		rm -f /usr/pgsql
-		ln -sf /usr/pgsql-"$major_version" /opt/pgsql
+		ln -sf /usr/pgsql-"$major_version" /usr/pgsql
 		echo 'export PATH=/usr/pgsql/bin:$PATH' > /etc/profile.d/pgsql.sh
 	fi
 }
