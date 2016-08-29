@@ -126,7 +126,7 @@ pg_install() {
 
         yum install -q -y postgresql"$short_version" postgresql"$short_version"-libs postgresql"$short_version"-server postgresql"$short_version"-contrib postgresql"$short_version"-devel
 
-        yum install -q -y pg_top"$short_version" postgis2_"$short_version" postgis2_"$short_version"-client pg_repack"$short_version"
+        yum install -q -y pgbouncer pgpool-II-"$short_version" pg_top"$short_version" postgis2_"$short_version" postgis2_"$short_version"-client pg_repack"$short_version"
 
 		rm -f /usr/pgsql
 		ln -sf /usr/pgsql-"$major_version" /usr/pgsql
