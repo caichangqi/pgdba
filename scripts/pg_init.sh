@@ -189,6 +189,8 @@ optimize() {
 		echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
 		echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
 
+		blockdev --setra 16384 $(blkid | awk -F':' '{print $1}'
+
 		cat > /etc/security/limits.d/postgres_nofile.conf <<- EOF
 		postgres hard nofile 102400
 		postgres soft nofile 102400
