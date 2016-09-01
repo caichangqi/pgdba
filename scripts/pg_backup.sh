@@ -7,8 +7,8 @@
 # Authors: panwenhang
 # ########################################################################
 
-declare -r PROGDIR="$(cd $(dirname $(readlink -f $0)) && pwd)"
-declare -r PROGNAME="$(basename $(readlink -f $0))"
+declare -r PROGDIR="$(cd $(dirname $0) && pwd)"
+declare -r PROGNAME="$(basename $0)"
 
 # PostgreSQL bin path and omnipitr bin path
 declare -x -r PITR_BIN='/opt/omnipitr/bin'
@@ -24,8 +24,8 @@ declare -x -r BACKUP_REMOTE="$PROGDIR/../rbackup"
 
 # backup connection
 declare -x -r MASTER_HOST=''
-declare -x -r MASTER_USER='db_backup'
-declare -x -r MASTER_PORT='5432'
+declare -x -r MASTER_USER=''
+declare -x -r MASTER_PORT=''
 declare -x -r PGPASSWORD=''
 
 # error mail

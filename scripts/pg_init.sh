@@ -1,4 +1,4 @@
-#/bin/env bash
+#!/bin/env bash
 
 # ########################################################################
 # PostgreSQL environment initialize program
@@ -7,10 +7,10 @@
 # Authors: panwenhang
 # ########################################################################
 
-declare -r PROGDIR="$(cd $(dirname $(readlink -f $0)) && pwd)"
-declare -r PROGNAME="$(basename $(readlink -f $0))"
+declare -r PROGDIR="$(cd $(dirname $0) && pwd)"
+declare -r PROGNAME="$(basename $0)"
 
-declare -x -r DIR_BASE='/data'
+declare -x -r DIR_BASE='/export'
 declare -x -r HOME='/home'
 
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$PATH

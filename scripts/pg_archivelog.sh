@@ -7,11 +7,11 @@
 # Authors: panwenhang
 # ########################################################################
 
-declare -r PROGDIR="$(cd $(dirname $(readlink -f $0)) && pwd)"
-declare -r PROGNAME="$(basename $(readlink -f $0))"
+declare -r PROGDIR="$(cd $(dirname $0) && pwd)"
+declare -r PROGNAME="$(basename $0)"
 
 # error mail
-declare -x -r ERROR_MAIL='sqldba@zhaopin.com.cn'
+declare -x -r ERROR_MAIL=''
 
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$PATH
 
