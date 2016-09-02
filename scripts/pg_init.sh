@@ -189,7 +189,7 @@ optimize() {
 		echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
 		echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
 
-		blockdev --setra 16384 $(blkid | awk -F':' '{print $1}'
+		blockdev --setra 16384 $(blkid | awk -F':' '{print $1}')
 
 		cat > /etc/security/limits.d/postgres_nofile.conf <<- EOF
 		postgres hard nofile 102400
@@ -222,11 +222,11 @@ pg_conf_init() {
 		wget -q -c https://raw.githubusercontent.com/panwenhang/pgdba/master/conf/pg"$short_version".conf -O "$datadir"/conf/postgresql.conf
 
 		cat > "$datadir"/conf/pg_hba.conf <<- EOF
-		host     all               $dbsu		0.0.0.0/0       reject
-		host     sqldba            monitor		0.0.0.0/0	    reject
-		local    all               all					        md5
-		host     replication       all			0.0.0.0/0       md5
-		host     all               all			0.0.0.0/0       md5
+		host    all                 $dbsu        0.0.0.0/0          reject
+		host    monitor             monitordb    0.0.0.0/0          reject
+		local   all                 all                             md5
+		host    replication         all          0.0.0.0/0          md5
+		host    all                 all          0.0.0.0/0          md5
 		EOF
 
 		cat > "$datadir"/conf/recovery.conf <<- EOF
