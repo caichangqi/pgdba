@@ -174,9 +174,9 @@ optimize() {
 		local swap="$(free \
 		     | awk '/Swap:/{print $2}')"
 
-		if ( ! grep -q 'Database kernel optimization' /etc/sysctl.conf ); then
+		if ( ! grep -q 'Database kernel' /etc/sysctl.conf ); then
 			cat >> /etc/sysctl.conf <<- EOF
-			# Database kernel optimization
+			# Database kernel optimisation
 			vm.swappiness = 0
 			vm.overcommit_memory = 2
 			vm.overcommit_ratio = $(( ( $mem - $swap ) * 100 / $mem ))
@@ -186,10 +186,15 @@ optimize() {
 		fi
 
 		grubby --update-kernel=/boot/vmlinuz-$(uname -r) --args="numa=off transparent_hugepage=never"
-		echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
-		echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
 
-		blockdev --setra 16384 $(blkid | awk -F':' '{print $1}')
+		if ( ! grep -q 'Database kernel' /etc/rc.local ); then
+			cat >> /etc/rc.local <<- EOF
+			# Database optimisation
+			echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
+			echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
+			blockdev --setra 16384 $(blkid | awk -F':' '{print $1}')
+			EOF
+		fi
 
 		cat > /etc/security/limits.d/postgres_nofile.conf <<- EOF
 		postgres hard nofile 102400
