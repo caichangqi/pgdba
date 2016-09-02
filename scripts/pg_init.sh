@@ -187,12 +187,12 @@ optimize() {
 
 		grubby --update-kernel=/boot/vmlinuz-$(uname -r) --args="numa=off transparent_hugepage=never"
 
-		if ( ! grep -q 'Database kernel' /etc/rc.local ); then
+		if ( ! grep -q 'Database optimisation' /etc/rc.local ); then
 			cat >> /etc/rc.local <<- EOF
 			# Database optimisation
 			echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
 			echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
-			blockdev --setra 16384 "$(blkid | awk -F':' '{print $1}')"
+            blockdev --setra 16384 $(echo $(blkid | awk -F':' '{print $1}'))
 			EOF
 		fi
 
