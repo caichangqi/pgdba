@@ -312,7 +312,7 @@ main() {
 	    keepdays=-1
 	fi
 
-	compress_backup
+	#compress_backup
 	send_to_remote
 	clean_old "$keepdays" "$BACKUP_LOCAL"
 }
