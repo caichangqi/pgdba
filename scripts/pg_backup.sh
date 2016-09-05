@@ -43,13 +43,13 @@ usage() {
 
 	OPTIONS:
 	    -t, --backup-tool=pg_basebackup             specify backup tool (pg_basebackup or omnipitr), default pg_basebackup
-	    -t, --backup-mode=auto                      specify backup mode (auto or local), default auto
+	    -t, --backup-mode=auto                      specify backup mode (auto or nonauto), default nonauto
 	    -k, --keep-days=days                        keep days of backup archive in local, default keep all
 	    -h, --help                                  usage of this program
 
 	Examples:
 	    $PROGNAME
-	    $PROGNAME -m local
+	    $PROGNAME -m auto
 	    $PROGNAME -k 3
 	    $PROGNAME -t pg_basebackup
 	    $PROGNAME -t pg_basebackup -m auto -k 3
@@ -293,10 +293,10 @@ main() {
 	    esac
 	done
 
-	if [[ -z "$backup_mode" ]] || [[ "$backup_mode" == "auto" ]]; then
-	    is_backup_server
-	elif [[ "$backup_mode" == "local" ]]; then
+	if [[ -z "$backup_mode" ]] || [[ "$backup_mode" == "nonauto" ]]; then
 	    :;
+	elif [[ "$backup_mode" == "auto" ]]; then
+	    is_backup_server
 	fi
 
 	if [[ -z "$backup_tool" ]] || [[ "$backup_tool" == "pg_basebackup" ]]; then
