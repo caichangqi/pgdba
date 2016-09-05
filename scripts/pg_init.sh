@@ -29,12 +29,14 @@ usage() {
 	OPTIONS:
 	    -U, --superuser=username    Database superuser
 	    -P, --product=product       product name
+	    -B, --dbbase=dbbase         base directory of postgresql
 	    -I, --initdb                initdb or not
 	    -V, --dbversion             Database version
 	    -h, --help                  usage of this program
 
 	Example:
 	    $PROGNAME -P test -V 9.5.4
+	    $PROGNAME -B /var/lib/pgsql/9.5 -V 9.5.4
 	    $PROGNAME -U dbsu -P test -I -V 9.5.4
 
 	EOF
@@ -192,7 +194,7 @@ optimize() {
 			# Database optimisation
 			echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
 			echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
-            blockdev --setra 16384 $(echo $(blkid | awk -F':' '{print $1}'))
+			blockdev --setra 16384 $(echo $(blkid | awk -F':' '{print $1}'))
 			EOF
 		fi
 
@@ -254,16 +256,16 @@ pg_conf_init() {
 # ##########################################################
 pg_initdb() {
 	if (( "$#" == 2 )); then
-		local datadir="$1"; shift
-		local dbsu="$1"; shift
+	    local datadir="$1"; shift
+	    local dbsu="$1"; shift
 
-		chown -R "$dbsu":"$dbsu" "$datadir"
-		chmod 0700 "$dbsu":"$dbsu" "$datadir"/data
-		su - "$dbsu" sh -c "source /etc/profile; initdb -D $datadir/data"
-		su - "$dbsu" sh -c "/bin/cp -a $datadir/data/postgresql.conf $datadir/data/postgresql.conf.bak"
-		su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/postgresql.conf $datadir/data/postgresql.conf"
-		su - "$dbsu" sh -c "/bin/cp -a $datadir/data/pg_hba.conf $datadir/data/pg_hba.conf.bak"
-		su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/pg_hba.conf $datadir/data/pg_hba.conf"
+	    chown -R "$dbsu":"$dbsu" "$datadir"
+	    chmod 0700 "$dbsu":"$dbsu" "$datadir"/data
+	    su - "$dbsu" sh -c "source /etc/profile; initdb -D $datadir/data"
+	    su - "$dbsu" sh -c "/bin/cp -a $datadir/data/postgresql.conf $datadir/data/postgresql.conf.bak"
+	    su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/postgresql.conf $datadir/data/postgresql.conf"
+	    su - "$dbsu" sh -c "/bin/cp -a $datadir/data/pg_hba.conf $datadir/data/pg_hba.conf.bak"
+	    su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/pg_hba.conf $datadir/data/pg_hba.conf"
 	fi
 }
 
@@ -274,56 +276,65 @@ main() {
 	local major_version='9.5'
 	local short_version='95'
 	local superuser='postgres'
-	local dbbase="$DIR_BASE/$dbtype/${product_name}_${major_version}"
+	local dbbase=""
 	local initflag="0"
 
 	check_exec_user
 
 	while (( "$#" >= 0 )); do
-		case "$1" in
-		    -U|--superuser=*)
-		        if [[ "$1" == "-U" ]]; then
-		            shift
-		        fi
-		        superuser="${1##*=}"
-		        shift
-		    ;;
-		    -P|--product=*)
-		        if [[ "$1" == "-P" ]]; then
-		            shift
-		        fi
-		        product_name="${1##*=}"
-		        shift
-		    ;;
-		    -I|--initdb)
-		        initflag="1"
-		        shift
-		    ;;
-		    -V|--dbversion=*)
-		        if [[ "$1" == "-V" ]]; then
-		            shift
-		        fi
-		        db_version="${1##*=}"
-		        major_version="${db_version:0:3}"
-		        short_version="$(echo $db_version | awk -F'.' '{print $1$2}')"
-		        shift
-		    ;;
-		    -h|--help)
-		        usage
-		        exit
-		    ;;
-		    *)
-		        break
-		    ;;
-		esac
+	    case "$1" in
+	        -U|--superuser=*)
+	            if [[ "$1" == "-U" ]]; then
+	                shift
+	            fi
+	            superuser="${1##*=}"
+	            shift
+	        ;;
+	        -P|--product=*)
+	            if [[ "$1" == "-P" ]]; then
+	                shift
+	            fi
+	            product_name="${1##*=}"
+	            shift
+	        ;;
+	        -B|--dbbase=*)
+	            if [[ "$1" == "-B" ]]; then
+	                shift
+	            fi
+	            dbbase="${1##*=}"
+	            shift
+	        ;;
+	        -I|--initdb)
+	            initflag="1"
+	            shift
+	        ;;
+	        -V|--dbversion=*)
+	            if [[ "$1" == "-V" ]]; then
+	                shift
+	            fi
+	            db_version="${1##*=}"
+	            major_version="${db_version:0:3}"
+	            short_version="$(echo $db_version | awk -F'.' '{print $1$2}')"
+	            shift
+	        ;;
+	        -h|--help)
+	            usage
+	            exit
+	        ;;
+	        *)
+	            break
+	        ;;
+	    esac
 	done
 
 	dbtype="postgresql"
-	
-	if [[ "$product_name" != "" ]] && [[ "$short_version" != "" ]]; then
-		dbbase="$DIR_BASE/$dbtype/${product_name}_${short_version}"
-	else
-		dbbase="$DIR_BASE/$dbtype"
+
+	if [[ -z "$dbbase" ]]; then
+	    if [[ "$product_name" != "" ]] && [[ "$short_version" != "" ]]; then
+	        dbbase="$DIR_BASE/$dbtype/${product_name}_${short_version}"
+	    else
+	        dbbase="$DIR_BASE/$dbtype"
+	    fi
 	fi
 
 	user_init "$superuser"
