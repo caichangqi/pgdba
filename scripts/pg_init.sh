@@ -187,7 +187,17 @@ optimize() {
 			EOF
 		fi
 
+		if ( ! type -f grubby &>/dev/null  ); then
+			yum install -q -y grubby
+		fi
 		grubby --update-kernel=/boot/vmlinuz-$(uname -r) --args="numa=off transparent_hugepage=never"
+
+		if [[ -x /opt/MegaRAID/MegaCli/MegaCli64 ]]; then
+			/opt/MegaRAID/MegaCli/MegaCli64 -LDSetProp WB -LALL -aALL
+			/opt/MegaRAID/MegaCli/MegaCli64 -LDSetProp ADRA -LALL -aALL
+			/opt/MegaRAID/MegaCli/MegaCli64 -LDSetProp -DisDskCache -LALL -aALL
+			/opt/MegaRAID/MegaCli/MegaCli64 -LDSetProp -Cached -LALL -aALL
+		fi
 
 		if ( ! grep -q 'Database optimisation' /etc/rc.local ); then
 			cat >> /etc/rc.local <<- EOF
