@@ -429,7 +429,7 @@ SELECT calls,
     (total_time/calls / 1000) AS avg_time,
     regexp_replace(query, E'[\n\r\t ]+', ' ', 'ig') AS query
 FROM pg_stat_statements
-WHERE query <> ALL (ARRAY['SELECT $1;'::text, 'BEGIN'::text, 'COMMIT'::text, 'ROLLBACK'::text, 'DISCARD ALL;'::text])
+WHERE query <> ALL (ARRAY['SELECT $1;'::text, 'BEGIN'::text, 'COMMIT'::text, 'ROLLBACK'::text, 'DISCARD ALL;'::text]) AND query !~* 'vacuum' AND query !~* 'analyze' AND query !~* 'create index'
 ORDER BY avg_time desc
 );
 COMMENT ON COLUMN query_statements.calls IS 'how many calls of query';
