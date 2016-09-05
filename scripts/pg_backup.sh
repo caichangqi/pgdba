@@ -43,7 +43,7 @@ usage() {
 
 	OPTIONS:
 	    -t, --backup-tool=pg_basebackup             specify backup tool (pg_basebackup or omnipitr), default pg_basebackup
-	    -t, --backup-mode=auto                      specify backup mode (auto or nonauto), default auto
+	    -m, --backup-mode=auto                      specify backup mode (auto or nonauto), default auto
 	    -k, --keep-days=days                        keep days of backup archive in local, default keep all
 	    -h, --help                                  usage of this program
 
@@ -189,7 +189,7 @@ pgbasebackup() {
 
 	mkdir -p "$backup_dir"
 	
-	"$PGBIN"/pg_basebackup -h 127.0.0.1 -U "$MASTER_USER" -p "$MASTER_PORT" -Xs -Fp -P -D "$backup_dir" &> "$backup_dir"/../pg_basebackup_"$today".log 
+	"$PGBIN"/pg_basebackup -h 127.0.0.1 -U "$MASTER_USER" -p "$MASTER_PORT" -x -Ft -z -c fast -v -D "$backup_dir" &> "$backup_dir"/../pg_basebackup_"$today".log
 	
 	if (( $? != 0 )); then
 	    "$PGBIN"/psql -h "$MASTER_HOST" -U "$MASTER_USER" -d template1 -A -t -c 'select pg_stop_backup();'
@@ -243,11 +243,12 @@ clean_old() {
 	    local keepdays="$1"; shift
 	    local backup_path="$1"; shift
 	    local today="$(date +%Y%m%d)"
-	    local rm_day="$(date -d "$today - $keepdays days" "+%Y%m%d")"
+	    #local rm_day="$(date -d "$today - $keepdays days" "+%Y%m%d")"
+	    local rm_day="$(date -d "$today - $keepdays days" "+%Y%m%d%H%M")"
 
 	    if [[ -n "$rm_day" ]] && (( "$keepdays" > 0 )); then
 	        echo -e "\e[1;32m rm backup of $rm_day start:\e[0m\n"
-	        touch -d "$rm_day" "$backup_path"/rm_label
+	        touch -t "$rm_day" "$backup_path"/rm_label
 	        find "$backup_path"/* -maxdepth 0 ! -newer "$backup_path"/rm_label \
 	            | xargs -I {} rm -fr {}
 	        echo -e "\e[1;32m rm backup of $backup_path/$rm_day done!\e[0m\n"
