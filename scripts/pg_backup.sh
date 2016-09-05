@@ -244,7 +244,7 @@ clean_old() {
 	    local backup_path="$1"; shift
 	    local today="$(date +%Y%m%d)"
 	    #local rm_day="$(date -d "$today - $keepdays days" "+%Y%m%d")"
-	    local rm_day="$(date -d "$today - $keepdays days" "+%Y%m%d%H%M")"
+	    local rm_day="$(date -d "$today - $keepdays days" "+%Y%m%d2359.59")"
 
 	    if [[ -n "$rm_day" ]] && (( "$keepdays" > 0 )); then
 	        echo -e "\e[1;32m rm backup of $rm_day start:\e[0m\n"
