@@ -251,7 +251,7 @@ clean_old() {
 	        touch -t "$rm_day" "$backup_path"/rm_label
 	        find "$backup_path"/* -maxdepth 0 ! -newer "$backup_path"/rm_label \
 	            | xargs -I {} rm -fr {}
-	        echo -e "\e[1;32m rm backup of $backup_path/$rm_day done!\e[0m\n"
+	        echo -e "\e[1;32m rm backup before $backup_path/$rm_day done!\e[0m\n"
 	    fi
 	fi
 }
