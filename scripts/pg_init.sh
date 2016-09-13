@@ -204,17 +204,27 @@ optimize() {
 			# Database optimisation
 			echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
 			echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
-			blockdev --setra 16384 $(echo $(blkid | awk -F':' '{print $1}'))
+			blockdev --setra 16384 $(echo $(blkid | awk -F':' '$1!~"block"{print $1}'))
 			EOF
+			chmod +x /etc/rc.d/rc.local
 		fi
 
+		cat > /etc/security/limits.d/postgres_noproc.conf <<- EOF
+		postgres   soft    nproc     10240
+		EOF
 		cat > /etc/security/limits.d/postgres_nofile.conf <<- EOF
 		postgres hard nofile 102400
 		postgres soft nofile 102400
 		EOF
+		cat > /etc/security/limits.d/pgbouncer_noproc.conf <<- EOF
+		pgbouncer   soft    nproc     10240
+		EOF
 		cat > /etc/security/limits.d/pgbouncer_nofile.conf <<- EOF
 		pgbouncer hard nofile 102400
 		pgbouncer soft nofile 102400
+		EOF
+		cat > /etc/security/limits.d/pgpool_noproc.conf <<- EOF
+		pgpool  soft    nproc     10240
 		EOF
 		cat > /etc/security/limits.d/pgpool_nofile.conf <<- EOF
 		pgpool hard nofile 102400
