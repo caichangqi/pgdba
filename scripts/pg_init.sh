@@ -125,6 +125,8 @@ pg_install() {
 
 		yum install -q -y tcl perl-ExtUtils-Embed libxml2 libxslt uuid readline
 		yum install -q -y "$rpm_base"/pgdg-centos"$short_version"-"$major_version"-1.noarch.rpm
+		yum install -q -y "$rpm_base"/pgdg-centos"$short_version"-"$major_version"-2.noarch.rpm
+		yum install -q -y "$rpm_base"/pgdg-centos"$short_version"-"$major_version"-3.noarch.rpm
 
 		yum install -q -y postgresql"$short_version" postgresql"$short_version"-libs postgresql"$short_version"-server postgresql"$short_version"-contrib postgresql"$short_version"-devel
 
