@@ -249,7 +249,7 @@ clean_old() {
 	    if [[ -n "$rm_day" ]] && (( "$keepdays" > 0 )); then
 	        echo -e "\e[1;32m rm backup of $rm_day start:\e[0m\n"
 	        touch -t "$rm_day" "$backup_path"/rm_label
-	        find "$backup_path"/* -maxdepth 0 ! -newer "$backup_path"/rm_label \
+	        find "$backup_path"/* -maxdepth 0 ! -name "*.sh" ! -newer "$backup_path"/rm_label \
 	            | xargs -I {} rm -fr {}
 	        echo -e "\e[1;32m rm backup before $backup_path/$rm_day done!\e[0m\n"
 	    fi
