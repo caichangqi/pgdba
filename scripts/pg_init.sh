@@ -3,7 +3,7 @@
 # ########################################################################
 # PostgreSQL environment initialize program
 # License: DBA
-# Version: 1.0
+# Version: 1.1
 # Authors: panwenhang
 # ########################################################################
 
@@ -30,14 +30,14 @@ usage() {
 	    -U, --superuser=username    Database superuser
 	    -P, --product=product       product name
 	    -B, --dbbase=dbbase         base directory of postgresql
-	    -I, --initdb                initdb or not
+	    -R, --role=master           master or slave
 	    -V, --dbversion             Database version
 	    -h, --help                  usage of this program
 
 	Example:
-	    $PROGNAME -P test -V 9.5.4
-	    $PROGNAME -B /var/lib/pgsql/9.5 -V 9.5.4
-	    $PROGNAME -U dbsu -P test -I -V 9.5.4
+	    $PROGNAME -P test -V 9.6.0
+	    $PROGNAME -B /var/lib/pgsql/9.5 -V 9.6.0
+	    $PROGNAME -U dbsu -P test -R master -V 9.6.0
 
 	EOF
 }
@@ -166,11 +166,11 @@ pg_install_custom() {
 }
 
 # ##########################################################
-# postgresql shared_directory
+# postgresql shared xlog archive directory
 # args:
 #    arg 1: postgresql base directory
 # ##########################################################
-shared_directory() {
+shared_xlog() {
 	if (( "$#" == 1 )); then
 		local datadir="$1"; shift
 		yum install -y -q nfs-utils
@@ -313,7 +313,7 @@ main() {
 	local short_version='95'
 	local superuser='postgres'
 	local dbbase=""
-	local initflag="0"
+	local role="master"
 
 	check_exec_user
 
@@ -340,8 +340,11 @@ main() {
 	            dbbase="${1##*=}"
 	            shift
 	        ;;
-	        -I|--initdb)
-	            initflag="1"
+	        -R|--role=*)
+	            if [[ "$1" == "-R" ]]; then
+	                shift
+	            fi
+	            role="${1##*=}"
 	            shift
 	        ;;
 	        -V|--dbversion=*)
@@ -376,12 +379,11 @@ main() {
 	user_init "$superuser"
 	dir_init "$superuser" "$dbbase"
 
-	shared_directory "$dbbase"
-
 	pg_install "$db_version"
 	pg_conf_init "$superuser" "$dbbase" "$short_version"
 
-	if (( "$initflag" == "1" )); then
+	if (( "$role" == "master" )); then
+	    shared_xlog "$dbbase"
 	    pg_initdb "$dbbase" "$superuser"
 	fi
 
