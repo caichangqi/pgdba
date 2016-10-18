@@ -166,6 +166,20 @@ pg_install_custom() {
 }
 
 # ##########################################################
+# postgresql shared_directory
+# args:
+#    arg 1: postgresql base directory
+# ##########################################################
+shared_directory() {
+	if (( "$#" == 1 )); then
+		local datadir="$1"; shift
+		yum install -y -q nfs-utils
+		echo "$datadir/arcxlog 10.191.0.0/16(rw)" > /etc/exports
+		service nfs start
+	fi
+}
+
+# ##########################################################
 # postgresql optimize
 # args:
 #    arg 1: postgresql base directory
@@ -361,6 +375,8 @@ main() {
 
 	user_init "$superuser"
 	dir_init "$superuser" "$dbbase"
+
+	shared_directory "$dbbase"
 
 	pg_install "$db_version"
 	pg_conf_init "$superuser" "$dbbase" "$short_version"
