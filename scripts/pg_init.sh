@@ -297,7 +297,7 @@ pg_initdb() {
 
 	    chown -R "$dbsu":"$dbsu" "$datadir"
 	    chmod 0700 "$dbsu":"$dbsu" "$datadir"/data
-        if [[ "$( ls "$datadir"/data | wc -l )" == "0" ]]
+        if [[ "$( ls "$datadir"/data | wc -l )" == "0" ]]; then
 	        su - "$dbsu" sh -c "source /etc/profile; initdb -D $datadir/data"
 	        su - "$dbsu" sh -c "/bin/cp -a $datadir/data/postgresql.conf $datadir/data/postgresql.conf.bak"
 	        su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/postgresql.conf $datadir/data/postgresql.conf"
