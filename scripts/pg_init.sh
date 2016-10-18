@@ -297,23 +297,25 @@ pg_initdb() {
 
 	    chown -R "$dbsu":"$dbsu" "$datadir"
 	    chmod 0700 "$dbsu":"$dbsu" "$datadir"/data
-	    su - "$dbsu" sh -c "source /etc/profile; initdb -D $datadir/data"
-	    su - "$dbsu" sh -c "/bin/cp -a $datadir/data/postgresql.conf $datadir/data/postgresql.conf.bak"
-	    su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/postgresql.conf $datadir/data/postgresql.conf"
-	    su - "$dbsu" sh -c "/bin/cp -a $datadir/data/pg_hba.conf $datadir/data/pg_hba.conf.bak"
-	    su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/pg_hba.conf $datadir/data/pg_hba.conf"
+        if [[ "$( ls "$datadir"/data | wc -l )" == "0" ]]
+	        su - "$dbsu" sh -c "source /etc/profile; initdb -D $datadir/data"
+	        su - "$dbsu" sh -c "/bin/cp -a $datadir/data/postgresql.conf $datadir/data/postgresql.conf.bak"
+	        su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/postgresql.conf $datadir/data/postgresql.conf"
+	        su - "$dbsu" sh -c "/bin/cp -a $datadir/data/pg_hba.conf $datadir/data/pg_hba.conf.bak"
+	        su - "$dbsu" sh -c "/bin/cp -a $datadir/conf/pg_hba.conf $datadir/data/pg_hba.conf"
+        fi
 	fi
 }
 
 main() {
 	local product_name='test'
 	local dbtype='postgresql'
-	local db_version='9.5.4'
-	local major_version='9.5'
-	local short_version='95'
+	local db_version='9.6.0'
+	local major_version='9.6'
+	local short_version='96'
 	local superuser='postgres'
 	local dbbase=""
-	local role="master"
+	local role="slave"
 
 	check_exec_user
 
