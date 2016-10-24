@@ -276,7 +276,7 @@ pg_conf_init() {
 		standby_mode = 'on'
 		primary_conninfo = 'host=localhost port=5432 user=postgres password=password application_name=$(hostname)'
 		###restore_command = '/bin/cp -n $datadir/arcxlog/%f %p'
-		###restore_command = 'arcxlog=$datadir/arcxlog; /usr/bin/test -f $arcxlog/\$(date +%Y%m%d)/%f.zip && unzip -o $arcxlog/\$(date +%Y%m%d)/%f.zip'
+		###restore_command = 'arcxlog=$datadir/arcxlog; /usr/bin/test -f \$arcxlog/\$(date +%Y%m%d)/%f.zip && unzip -o \$arcxlog/\$(date +%Y%m%d)/%f.zip'
 		recovery_target_timeline = 'latest'
 		EOF
 
