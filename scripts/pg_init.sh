@@ -384,7 +384,7 @@ main() {
 	pg_install "$db_version"
 	pg_conf_init "$superuser" "$dbbase" "$short_version"
 
-	if (( "$role" == "master" )); then
+	if [[ "$role" == "master" ]]; then
 	    shared_xlog "$dbbase"
 	    pg_initdb "$dbbase" "$superuser"
 	fi
