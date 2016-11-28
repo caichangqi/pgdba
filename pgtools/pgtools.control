@@ -1,5 +1,0 @@
-# pgtools extension
-comment = 'pgtools for pgdba'
-default_version = '1.0'
-requires = 'pg_stat_statements, pg_buffercache'
-relocatable = true
