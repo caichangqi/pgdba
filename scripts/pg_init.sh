@@ -123,7 +123,7 @@ pg_install() {
 		    os_release="rhel7"
 		fi
 
-		yum install -q -y tcl perl-ExtUtils-Embed libxml2 libxslt uuid readline
+		yum install -q -y tcl perl-ExtUtils-Embed libxml2 libxslt uuid readline lz4 nc
 		yum install -q -y "$rpm_base"/pgdg-centos"$short_version"-"$major_version"-1.noarch.rpm
 		yum install -q -y "$rpm_base"/pgdg-centos"$short_version"-"$major_version"-2.noarch.rpm
 		yum install -q -y "$rpm_base"/pgdg-centos"$short_version"-"$major_version"-3.noarch.rpm
