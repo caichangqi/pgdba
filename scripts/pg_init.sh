@@ -35,9 +35,9 @@ usage() {
 	    -h, --help                  usage of this program
 
 	Example:
-	    $PROGNAME -P test -V 9.6.0
-	    $PROGNAME -B /var/lib/pgsql/9.6 -V 9.6.0
-	    $PROGNAME -U dbsu -P test -R master -V 9.6.0
+	    $PROGNAME -P test -V 9.6
+	    $PROGNAME -B /var/lib/pgsql/9.6 -V 9.6
+	    $PROGNAME -U dbsu -P test -R master -V 9.6
 
 	EOF
 }
