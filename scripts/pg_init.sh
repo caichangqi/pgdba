@@ -220,7 +220,7 @@ optimize() {
 			# Database optimisation
 			echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
 			echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
-			blockdev --setra 16384 $(echo $(blkid | awk -F':' '$1!~"block"{print $1}'))
+			#blockdev --setra 16384 $(echo $(blkid | awk -F':' '$1!~"block"{print $1}'))
 			EOF
 			chmod +x /etc/rc.d/rc.local
 		fi
