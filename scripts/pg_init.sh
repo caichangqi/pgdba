@@ -225,26 +225,39 @@ optimize() {
 			chmod +x /etc/rc.d/rc.local
 		fi
 
-		cat > /etc/security/limits.d/postgres_noproc.conf <<- EOF
-		postgres   soft    nproc     10240
+		cat > /etc/security/limits.d/postgresql.conf <<- EOF
+		postgres    soft    nproc       655360
+		postgres    hard    nproc       655360
+		postgres    hard    nofile      655360
+		postgres    soft    nofile      655360
+		postgres    soft    stack       unlimited
+		postgres    hard    stack       unlimited
+		postgres    soft    core        unlimited
+		postgres    hard    core        unlimited
+		postgres    soft    memlock     250000000
+		postgres    hard    memlock     250000000
 		EOF
-		cat > /etc/security/limits.d/postgres_nofile.conf <<- EOF
-		postgres hard nofile 102400
-		postgres soft nofile 102400
+		cat > /etc/security/limits.d/pgbouncer.conf <<- EOF
+		pgbouncer    soft    nproc       655360
+		pgbouncer    hard    nofile      655360
+		pgbouncer    soft    nofile      655360
+		pgbouncer    soft    stack       unlimited
+		pgbouncer    hard    stack       unlimited
+		pgbouncer    soft    core        unlimited
+		pgbouncer    hard    core        unlimited
+		pgbouncer    soft    memlock     250000000
+		pgbouncer    hard    memlock     250000000
 		EOF
-		cat > /etc/security/limits.d/pgbouncer_noproc.conf <<- EOF
-		pgbouncer   soft    nproc     10240
-		EOF
-		cat > /etc/security/limits.d/pgbouncer_nofile.conf <<- EOF
-		pgbouncer hard nofile 102400
-		pgbouncer soft nofile 102400
-		EOF
-		cat > /etc/security/limits.d/pgpool_noproc.conf <<- EOF
-		pgpool  soft    nproc     10240
-		EOF
-		cat > /etc/security/limits.d/pgpool_nofile.conf <<- EOF
-		pgpool hard nofile 102400
-		pgpool soft nofile 102400
+		cat > /etc/security/limits.d/pgpool.conf <<- EOF
+		pgpool    soft    nproc       655360
+		pgpool    hard    nofile      655360
+		pgpool    soft    nofile      655360
+		pgpool    soft    stack       unlimited
+		pgpool    hard    stack       unlimited
+		pgpool    soft    core        unlimited
+		pgpool    hard    core        unlimited
+		pgpool    soft    memlock     250000000
+		pgpool    hard    memlock     250000000
 		EOF
 	fi
 }
