@@ -167,6 +167,7 @@ pg_install_custom() {
 
 # ##########################################################
 # postgresql shared xlog archive directory
+            #  pdflush（或其他）后台刷脏页进程的唤醒间隔， 50表示0.5秒。
 # args:
 #    arg 1: postgresql base directory
 # ##########################################################
@@ -183,6 +184,7 @@ shared_xlog() {
 # postgresql optimize
 # args:
 #    arg 1: postgresql base directory
+            #  pdflush（或其他）后台刷脏页进程的唤醒间隔， 50表示0.5秒。
 # ##########################################################
 optimize() {
 	if (( "$#" == 1 )); then
@@ -193,13 +195,47 @@ optimize() {
 		     | awk '/Swap:/{print $2}')"
 
 		if ( ! grep -q 'Database kernel' /etc/sysctl.conf ); then
-			cat >> /etc/sysctl.conf <<- EOF
+			cat > /etc/sysctl.conf <<- EOF
 			# Database kernel optimisation
+			fs.aio-max-nr = 1048576
+			fs.file-max = 76724600
+			kernel.sem = 4096 2147483647 2147483646 512000
+			kernel.shmmax = $(( $mem * 1024 * / 2 ))
+			kernel.shmall = $(( $mem / 5 ))
+			kernel.shmmni = 819200
+			net.core.netdev_max_backlog = 10000
+			net.core.rmem_default = 262144
+			net.core.rmem_max = 4194304
+			net.core.wmem_default = 262144
+			net.core.wmem_max = 4194304
+			net.core.somaxconn = 4096
+			net.ipv4.tcp_max_syn_backlog = 4096
+			net.ipv4.tcp_keepalive_intvl = 20
+			net.ipv4.tcp_keepalive_probes = 3
+			net.ipv4.tcp_keepalive_time = 60
+			net.ipv4.tcp_mem = 8388608 12582912 16777216
+			net.ipv4.tcp_fin_timeout = 5
+			net.ipv4.tcp_synack_retries = 2
+			net.ipv4.tcp_syncookies = 1
+			net.ipv4.tcp_timestamps = 1
+			net.ipv4.tcp_tw_recycle = 0
+			net.ipv4.tcp_tw_reuse = 1
+			net.ipv4.tcp_max_tw_buckets = 262144
+			net.ipv4.tcp_rmem = 8192 87380 16777216
+			net.ipv4.tcp_wmem = 8192 65536 16777216
+			vm.dirty_background_bytes = 4096000000
+			net.ipv4.ip_local_port_range = 40000 65535
+			vm.dirty_expire_centisecs = 6000
+			vm.dirty_ratio = 80
+			vm.dirty_writeback_centisecs = 50
+			vm.extra_free_kbytes = 4096000
+			vm.min_free_kbytes = 2097152
+			vm.mmap_min_addr = 65536)
 			vm.swappiness = 0
 			vm.overcommit_memory = 2
 			vm.overcommit_ratio = $(( ( $mem - $swap ) * 100 / $mem ))
+			vm.overcommit_ratio = $(( ( $mem - $swap ) * 100 / $mem ))
 			vm.zone_reclaim_mode = 0
-			net.core.somaxconn = 62144
 			EOF
 		fi
 
