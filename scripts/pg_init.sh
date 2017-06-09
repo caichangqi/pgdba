@@ -21,7 +21,7 @@ export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$PATH
 usage() {
 	cat <<- EOF
 
-	usage: $PROGNAME opstions
+	Usage: $PROGNAME [options]
 
 	You must execute this program with system superuser privilege (root)!
 	The product and dbversion must use together.
@@ -222,14 +222,14 @@ optimize() {
 		net.ipv4.tcp_max_tw_buckets = 262144
 		net.ipv4.tcp_rmem = 8192 87380 16777216
 		net.ipv4.tcp_wmem = 8192 65536 16777216
-		vm.dirty_background_bytes = 4096000000
+		vm.dirty_background_bytes = 409600000
 		net.ipv4.ip_local_port_range = 40000 65535
 		vm.dirty_expire_centisecs = 6000
 		vm.dirty_ratio = 80
 		vm.dirty_writeback_centisecs = 50
 		vm.extra_free_kbytes = 4096000
 		vm.min_free_kbytes = 2097152
-		vm.mmap_min_addr = 65536)
+		vm.mmap_min_addr = 65536
 		vm.swappiness = 0
 		vm.overcommit_memory = 2
 		vm.overcommit_ratio = $(( ( $mem - $swap ) * 100 / $mem ))

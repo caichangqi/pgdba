@@ -39,7 +39,7 @@ export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$PATH
 usage() {
 	cat <<- EOF
 
-	usage: $PROGNAME [usrions]
+	Usage: $PROGNAME [options]
 
 	OPTIONS:
 	    -t, --backup-tool=pg_basebackup             specify backup tool (pg_basebackup or omnipitr), default pg_basebackup
