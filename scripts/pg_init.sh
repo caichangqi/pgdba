@@ -184,7 +184,6 @@ shared_xlog() {
 # postgresql optimize
 # args:
 #    arg 1: postgresql base directory
-            #  pdflush（或其他）后台刷脏页进程的唤醒间隔， 50表示0.5秒。
 # ##########################################################
 optimize() {
 	if (( "$#" == 1 )); then
