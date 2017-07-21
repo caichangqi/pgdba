@@ -123,6 +123,7 @@ pg_install() {
 		    os_release="rhel7"
 		fi
 
+		yum clean all && yum install -q -y epel-release
 		yum install -q -y tcl perl-ExtUtils-Embed libxml2 libxslt uuid readline lz4 nc
 		yum install -q -y "$rpm_base"/pgdg-centos"$short_version"-"$major_version"-1.noarch.rpm
 		yum install -q -y "$rpm_base"/pgdg-centos"$short_version"-"$major_version"-2.noarch.rpm
@@ -167,7 +168,6 @@ pg_install_custom() {
 
 # ##########################################################
 # postgresql shared xlog archive directory
-            #  pdflush（或其他）后台刷脏页进程的唤醒间隔， 50表示0.5秒。
 # args:
 #    arg 1: postgresql base directory
 # ##########################################################
@@ -234,6 +234,7 @@ optimize() {
 		vm.overcommit_ratio = $(( ( $mem - $swap ) * 100 / $mem ))
 		vm.zone_reclaim_mode = 0
 		EOF
+		sysctl -p
 
 		if ( ! type -f grubby &>/dev/null  ); then
 			yum install -q -y grubby
