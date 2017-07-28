@@ -308,8 +308,6 @@ pg_conf_init() {
 		local datadir="$1"; shift
 		local short_version="$1"; shift
 
-		wget -q -c https://raw.githubusercontent.com/panwenhang/pgdba/master/conf/pg"$short_version".conf -O "$datadir"/conf/postgresql.conf
-
 		cat > "$datadir"/conf/pg_hba.conf <<- EOF
 		host    all                 $dbsu        0.0.0.0/0          reject
 		host    monitor             monitordb    0.0.0.0/0          reject
